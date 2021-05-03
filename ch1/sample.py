@@ -33,6 +33,7 @@ print('---------------データの結合(トランザクションデータ)-----
 # ignore_index:concatでデータフレームを結合した際にindexに付与された番号を無視する
 df_transaction = pd.concat([transaction_1, transaction_2], ignore_index=True)
 print(transaction_1.head())
+df_validate_price = df_transaction
 
 df_transaction_detail = pd.concat(
     [transaction_detail_1, transaction_detail_2], ignore_index=True)
@@ -46,9 +47,29 @@ df_transaction_detail = pd.merge(
 print(df_transaction_detail.head())
 
 print('---------------データの結合(マスターデータ)-------------------')
-df_transaction_detail = pd.merge(df_transaction_detail, customer_master, on='customer_id', how='left')
-df_transaction_detail = pd.merge(df_transaction_detail, item_master, on='item_id', how='left')
+df_transaction_detail = pd.merge(
+    df_transaction_detail, customer_master, on='customer_id', how='left')
+df_transaction_detail = pd.merge(
+    df_transaction_detail, item_master, on='item_id', how='left')
 
-pd.set_option('display.max_rows', 10000)
+print('---------------全データの表示-------------------')
+# pd.set_option('display.max_rows', 10000)
 pd.set_option('display.max_columns', 20)
 print(df_transaction_detail.head())
+
+print('---------------price列の表示-------------------')
+# 行ごとにpriceを計算
+df_transaction_detail['price'] = df_transaction_detail['quantity'] * \
+    df_transaction_detail['item_price']
+print(df_transaction_detail.head())
+
+print('---------------データの検算-------------------')
+# 1.priceを出力
+print(df_transaction_detail['price'].sum())
+print(df_validate_price['price'].sum())
+# 2.True,Falseで確認
+is_valid = df_transaction_detail['price'].sum() == df_validate_price['price'].sum()
+print(is_valid)
+
+
+
